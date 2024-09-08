@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "fastapi-sample-project"
+version = "0.1.0"
+description = "A sample FastAPI project with DBContext, controller-based views, permission checks, and dependency injection."
+authors = ["Yury Sokolov <yura1703@yandex.ru>"]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.31"}
+alembic = "^1.13.2"
+pydantic = {extras = ["email"], version = "^2.8.0"}
+fastapi = "^0.111.0"
+uvicorn = "^0.30.1"
+bcrypt = "^3.2.0"
+pyjwt = "^2.1.0"
+pydantic-settings = "^2.3.4"
+fastapi-utils = "^0.7.0"
+python-dotenv = "^1.0.1"
+asyncpg = "^0.29.0"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+typing-inspect = "^0.9.0"
+yarl = "^1.9.4"
+sqlalchemy-utils = "^0.41.2"
+psycopg2-binary = "^2.9.9"
+aiosqlite = "^0.18.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.2.2"
+pytest-asyncio = "^0.23.7"
+pytest-mock = "^3.14.0"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.10.1"
+isort = "^5.13.2"
+
+[tool.isort]
+profile = "black"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
