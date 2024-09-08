@@ -5,16 +5,16 @@ from typing import Callable
 import bcrypt
 from fastapi.responses import JSONResponse
 import jwt
-from fastapi import Request, HTTPException, Depends, Security
+from fastapi import Request, HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt import PyJWTError
 from starlette.responses import Response
 from app.core.settings import load_settings
-import logging
 
 settings = load_settings()
 
 anonymous_routes: set[str] = set()
+
 
 def hash_password(password):
     pwd_bytes = password.encode("utf-8")
@@ -22,9 +22,11 @@ def hash_password(password):
     hashed_password = bcrypt.hashpw(password=pwd_bytes, salt=salt)
     return str(hashed_password)
 
+
 def verify_password(plain_password, hashed_password) -> bool:
     password_byte_enc = plain_password.encode("utf-8")
     return bcrypt.checkpw(password=password_byte_enc, hashed_password=hashed_password)
+
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
@@ -34,6 +36,7 @@ def create_access_token(data: dict) -> str:
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
     return encoded_jwt
 
+
 def verify_token(token: str) -> dict[str, object]:
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
@@ -42,6 +45,7 @@ def verify_token(token: str) -> dict[str, object]:
         return payload
     except PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
 
 async def token_middleware(request: Request, call_next: Callable) -> Response:
     try:
@@ -70,8 +74,10 @@ async def token_middleware(request: Request, call_next: Callable) -> Response:
     except Exception as exc:
         return JSONResponse(content={"detail": f"Error: {str(exc)}"}, status_code=500)
 
+
 def get_credentials(credentials: HTTPAuthorizationCredentials = Security(HTTPBearer())) -> HTTPAuthorizationCredentials:
     return credentials
+
 
 def require_permissions(required_permissions: list[str]) -> Callable:
     def decorator(func: Callable) -> Callable:
@@ -92,6 +98,7 @@ def require_permissions(required_permissions: list[str]) -> Callable:
         return wrapper
 
     return decorator
+
 
 def allow_anonymous(route_path: str) -> Callable:
     def decorator(func: Callable) -> Callable:

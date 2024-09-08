@@ -8,6 +8,7 @@ from fastapi_utils.cbv import cbv
 
 router = APIRouter()
 
+
 @cbv(router)
 class UserController:
     def __init__(

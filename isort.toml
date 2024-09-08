@@ -1,0 +1,5 @@
+[tool.isort]
+profile = "black"
+src_paths = ["app"]
+line_length = 120
+only_modified = true

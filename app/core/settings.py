@@ -19,10 +19,10 @@ class Settings(BaseSettings):
 def load_settings() -> Settings:
     env = os.getenv("ENV", "development")
     settings_file = os.path.join("config", f"{env}.appsettings.json")
-    
+
     if os.path.exists(settings_file):
         with open(settings_file, "r") as file:
             settings_data = json.load(file)
         return Settings(**settings_data)
-    
+
     return Settings()

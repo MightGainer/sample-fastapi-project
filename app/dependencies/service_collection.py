@@ -1,7 +1,7 @@
 import inspect
 import threading
 from functools import wraps
-from typing import Any, Callable, Dict, Type, TypeVar, Union, Optional
+from typing import Any, Callable, Dict, Type, TypeVar, Union
 
 from fastapi import Request
 
@@ -22,9 +22,12 @@ class ServiceCollection:
     def add_scoped(self, service_type: Type[T], implementation: Union[Type[T], Callable[[], T]]) -> None:
         self._validate_and_add(service_type, implementation, 'scoped')
 
-    def _validate_and_add(self, service_type: Type[T], implementation: Union[Type[T], Callable[[], T], T], lifetime: str) -> None:
+    def _validate_and_add(
+        self, service_type: Type[T], implementation: Union[Type[T], Callable[[], T], T], lifetime: str
+    ) -> None:
         if service_type in self._services:
-            raise Exception(f"Service type {service_type} already registered with implementation {self._services[service_type]['implementation']}")
+            raise Exception(f"Service type {service_type} already registered "
+                            + "with implementation {self._services[service_type]['implementation']}")
         self._services[service_type] = {
             'implementation': implementation,
             'lifetime': lifetime
@@ -46,7 +49,7 @@ class ServiceProvider:
             self._scopes.current = []
         self._scopes.current.append(scope)
         return scope
-    
+
     async def get_service(self, service_type: Type[T]) -> T:
         if service_type not in self._services:
             raise Exception(f"Service of type {service_type} is not registered")
@@ -98,11 +101,15 @@ class ServiceProvider:
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             sig = inspect.signature(func)
             for param in sig.parameters.values():
-                if param.name not in kwargs and param.default == inspect.Parameter.empty and param.annotation != Request:
+                if (
+                    param.name not in kwargs
+                    and param.default == inspect.Parameter.empty
+                    and param.annotation != Request
+                ):
                     try:
                         service = await self.get_service(param.annotation)
                         kwargs[param.name] = service
-                    except Exception as e:
+                    except Exception:
                         raise
             return await func(*args, **kwargs)
 
@@ -115,11 +122,15 @@ class ServiceProvider:
         async def new_init(self, *args: Any, **kwargs: Any) -> None:
             sig = inspect.signature(original_init)
             for param in sig.parameters.values():
-                if param.name not in kwargs and param.default == inspect.Parameter.empty and param.annotation != Request:
+                if (
+                    param.name not in kwargs
+                    and param.default == inspect.Parameter.empty
+                    and param.annotation != Request
+                ):
                     try:
                         service = await self.get_service(param.annotation)
                         kwargs[param.name] = service
-                    except Exception as e:
+                    except Exception:
                         raise
             await original_init(self, *args, **kwargs)
 
@@ -183,7 +194,6 @@ if __name__ == "__main__":
 
         def dispose(self) -> None:
             print("ConcreteScopedService disposed")
-
 
     # Usage
     service_collection = ServiceCollection()

@@ -17,7 +17,9 @@ services.add_transient(UserService, UserService)
 
 service_provider = services.build_service_provider()
 
+
 def resolve_dependency(dependency: Type[object]) -> Callable[..., object]:
     async def _resolver() -> object:
         return await service_provider.get_service(dependency)
+
     return Depends(_resolver)

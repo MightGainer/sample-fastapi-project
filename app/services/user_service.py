@@ -13,6 +13,6 @@ class UserService:
 
     async def get_user(self, user_id: int, db_context: DbContext) -> UserEntity | None:
         return await db_context.users.get(user_id)
-    
+
     async def get_all_users(self, db_context: DbContext) -> list[UserEntity]:
         return await db_context.users.all()

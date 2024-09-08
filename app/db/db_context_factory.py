@@ -5,15 +5,22 @@ from app.db.isolation_level import IsolationLevel
 import logging
 from contextlib import asynccontextmanager
 
+
 class DbContextFactory:
     def __init__(self, engine: AsyncEngine):
         self.engine = engine
 
     @asynccontextmanager
-    async def create_db_context(self, isolation_level=IsolationLevel.READ_UNCOMMITTED) -> AsyncGenerator[DbContext, None]:
-        logging.info(f"STANDARD SESSION CREATED. Isolation level: {isolation_level.value}")
-        
-        new_engine = self.engine.execution_options(isolation_level=isolation_level.value)
+    async def create_db_context(
+        self, isolation_level=IsolationLevel.READ_UNCOMMITTED
+    ) -> AsyncGenerator[DbContext, None]:
+        logging.info(
+            f"STANDARD SESSION CREATED. Isolation level: {isolation_level.value}"
+        )
+
+        new_engine = self.engine.execution_options(
+            isolation_level=isolation_level.value
+        )
 
         async_session_maker = async_sessionmaker(
             bind=new_engine, expire_on_commit=False, autocommit=False
