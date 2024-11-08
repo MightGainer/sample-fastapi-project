@@ -1,34 +1,29 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11-alpine
+# Используем официальный базовый образ Python
+FROM python:3.11-slim
 
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_VERSION=1.3.1  \
-    POETRY_HOME="/etc/poetry" \
-    VENV_PATH="/app/.venv" \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1
-    
-# Prepend poetry and venv to path
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
-
-# Install Poetry
+# Устанавливаем системные зависимости
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y curl gcc && \
-    apk add build-base linux-headers
+    apt-get install -y --no-install-recommends gcc libpq-dev python3-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install poetry - respects $POETRY_VERSION & $POETRY_HOME
-RUN curl -sSL https://install.python-poetry.org | python3 -
+# Устанавливаем Poetry
+RUN pip install --no-cache-dir poetry
 
+# Устанавливаем рабочую директорию
 WORKDIR /app
-COPY pyproject.toml poetry.lock /app/
-RUN poetry install --only main
 
+# Копируем файлы pyproject.toml и poetry.lock для установки зависимостей
+COPY pyproject.toml poetry.lock /app/
+
+# Устанавливаем зависимости приложения
+RUN poetry config virtualenvs.create false && poetry install --no-dev
+
+# Копируем остальной код приложения
 COPY . /app
 
-EXPOSE 80
+# Указываем команду для запуска приложения
+CMD ["gunicorn", "app.main:app", "-c", "gunicorn_conf.py"]
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+# Открываем порт, который будет использоваться приложением
+EXPOSE 8000

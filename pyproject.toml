@@ -23,6 +23,7 @@ yarl = "^1.9.4"
 sqlalchemy-utils = "^0.41.2"
 psycopg2-binary = "^2.9.9"
 aiosqlite = "^0.18.0"
+gunicorn = "^23.0.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.2.2"
