@@ -22,4 +22,4 @@ def resolve_dependency(dependency: Type[object]) -> Callable[..., object]:
     async def _resolver() -> object:
         return await service_provider.get_service(dependency)
 
-    return Depends(_resolver)
+    return Depends(_resolver)  # type: ignore

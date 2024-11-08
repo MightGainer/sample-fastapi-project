@@ -1,6 +1,6 @@
 from datetime import datetime, timezone, timedelta
 from functools import wraps
-from typing import Callable
+from typing import Any, Callable, Coroutine
 
 import bcrypt
 from fastapi.responses import JSONResponse
@@ -47,7 +47,7 @@ def verify_token(token: str) -> dict[str, object]:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
-async def token_middleware(request: Request, call_next: Callable) -> Response:
+async def token_middleware(request: Request, call_next: Callable[[Request], Coroutine[Any, Any, Response]]) -> Response:
     try:
         if request.url.path in anonymous_routes or request.url.path in [
             "/docs",
