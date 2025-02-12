@@ -14,6 +14,6 @@ RUN poetry config virtualenvs.create false && poetry install --no-root
 
 COPY . /app
 
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "app.main:app", "-c", "gunicorn_conf.py"]
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "app.presentation.main:app", "-c", "gunicorn_conf.py"]
 
 EXPOSE 8000

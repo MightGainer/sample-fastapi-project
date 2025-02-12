@@ -1,31 +1,19 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from typing import Any, Callable, Coroutine
 
-import bcrypt
-from fastapi.responses import JSONResponse
 import jwt
-from fastapi import Request, HTTPException, Security
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import HTTPException, Request, Security
+from fastapi.responses import JSONResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import PyJWTError
 from starlette.responses import Response
-from app.core.settings import load_settings
+
+from app.presentation.settings import load_settings
 
 settings = load_settings()
 
 anonymous_routes: set[str] = set()
-
-
-def hash_password(password):
-    pwd_bytes = password.encode("utf-8")
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password=pwd_bytes, salt=salt)
-    return str(hashed_password)
-
-
-def verify_password(plain_password, hashed_password) -> bool:
-    password_byte_enc = plain_password.encode("utf-8")
-    return bcrypt.checkpw(password=password_byte_enc, hashed_password=hashed_password)
 
 
 def create_access_token(data: dict) -> str:
@@ -42,7 +30,7 @@ def verify_token(token: str) -> dict[str, object]:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
         if datetime.fromtimestamp(payload["exp"], tz=timezone.utc) < datetime.now(timezone.utc):
             raise HTTPException(status_code=401, detail="Token has expired")
-        return payload
+        return payload  # type: ignore
     except PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
@@ -88,7 +76,7 @@ def require_permissions(required_permissions: list[str]) -> Callable:
                 raise HTTPException(status_code=400, detail="Request object is missing")
 
             payload = verify_token(request.state.token)
-            user_permissions = set(payload.get("permissions", []))
+            user_permissions = set(payload.get("permissions", []))  # type: ignore
 
             if not user_permissions.issuperset(set(required_permissions)):
                 raise HTTPException(status_code=403, detail="Permission denied")

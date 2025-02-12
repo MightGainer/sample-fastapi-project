@@ -12,3 +12,17 @@ class UserEntity(Base):
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
+
+    def __init__(
+            self, 
+            username: str, 
+            email: str, 
+            password: str, 
+            is_active: bool = True, 
+            is_superuser=False
+        ) -> None:
+        super().__init__()
+        self.username = username
+        self.email = email
+        self.is_active = is_active
+        self.is_superuser = is_superuser

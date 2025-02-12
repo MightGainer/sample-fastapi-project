@@ -3,18 +3,23 @@ from typing import Callable, Type
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from app.core.settings import settings
-from app.db.db_context_factory import DbContextFactory
-from app.dependencies.service_collection import ServiceCollection
-from app.services.user_service import UserService
+from app.infrastructure.db.db_context_factory import DbContextFactory
+from app.infrastructure.dependencies.service_collection import ServiceCollection
+from app.infrastructure.security.password_manager import (
+    IPasswordManager,
+    PasswordManager,
+)
+from app.infrastructure.services.user_service import IUserService, UserService
+from app.presentation.settings import settings
 
 engine = create_async_engine(settings.database_url, echo=settings.debug)
 
-# Dependency Injection setup
+# DI setup
 services = ServiceCollection()
 services.add_singleton(AsyncEngine, engine)
 services.add_singleton(DbContextFactory, DbContextFactory)
-services.add_transient(UserService, UserService)
+services.add_transient(IUserService, UserService)
+services.add_transient(IPasswordManager, PasswordManager)
 
 service_provider = services.build_service_provider()
 

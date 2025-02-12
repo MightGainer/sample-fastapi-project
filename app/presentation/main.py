@@ -1,8 +1,10 @@
-from fastapi import FastAPI, Request
-from app.controllers.user_controller import router as user_router
-from app.middlewares.permissions import token_middleware
-from app.di import service_provider
 from typing import Callable
+
+from fastapi import FastAPI, Request
+
+from app.presentation.controllers.user_controller import router as user_router
+from app.presentation.di import service_provider
+from app.presentation.middlewares.permissions import token_middleware
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight": True})
 

@@ -1,11 +1,14 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi_utils.cbv import cbv
 
-from app.db.db_context_factory import DbContextFactory
-from app.di import resolve
-from app.middlewares.permissions import allow_anonymous, require_permissions
-from app.schemas.user import User, UserCreate
-from app.services.user_service import UserService
+from app.infrastructure.db.db_context_factory import DbContextFactory
+from app.infrastructure.services.user_service import UserService
+from app.presentation.di import resolve
+from app.presentation.middlewares.permissions import (
+    allow_anonymous,
+    require_permissions,
+)
+from app.presentation.schemas.user import User, UserCreate
 
 router = APIRouter()
 
@@ -24,7 +27,7 @@ class UserController:
     @require_permissions(["user:create"])
     async def create_user(self, request: Request, user: UserCreate) -> User:
         async with self.db_context_factory.create_db_context() as db_context:
-            user_entity = await self.user_service.create_user(user, db_context)
+            user_entity = await self.user_service.create_user(user.to_entity(), db_context)
             return User.from_orm(user_entity)
 
     @router.get("/users/{user_id}", response_model=User)
@@ -34,7 +37,7 @@ class UserController:
             user = await self.user_service.get_user(user_id, db_context)
             if user is None:
                 raise HTTPException(status_code=404, detail="User not found")
-            return user
+            return User(user)
 
     @router.get("/users", response_model=list[User])
     @require_permissions(["user:read"])

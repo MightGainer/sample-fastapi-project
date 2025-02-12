@@ -1,7 +1,9 @@
 from typing import Self
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.user import UserEntity
-from app.db.db_set import DbSet
+
+from app.infrastructure.db.db_set import DbSet
+from app.infrastructure.models.user import UserEntity
 
 
 class DbContext:
