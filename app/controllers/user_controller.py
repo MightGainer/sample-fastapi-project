@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException, Request
+from fastapi_utils.cbv import cbv
+
+from app.db.db_context_factory import DbContextFactory
+from app.di import resolve
+from app.middlewares.permissions import allow_anonymous, require_permissions
 from app.schemas.user import User, UserCreate
 from app.services.user_service import UserService
-from app.db.db_context_factory import DbContextFactory
-from app.middlewares.permissions import require_permissions, allow_anonymous
-from app.di import resolve_dependency
-from fastapi_utils.cbv import cbv
 
 router = APIRouter()
 
@@ -13,8 +14,8 @@ router = APIRouter()
 class UserController:
     def __init__(
         self,
-        user_service: UserService = resolve_dependency(UserService),
-        db_context_factory: DbContextFactory = resolve_dependency(DbContextFactory),
+        user_service: UserService = resolve(UserService),
+        db_context_factory: DbContextFactory = resolve(DbContextFactory),
     ) -> None:
         self.user_service = user_service
         self.db_context_factory = db_context_factory
@@ -44,5 +45,5 @@ class UserController:
 
     @router.get("/public", response_model=str)
     @allow_anonymous("/api/public")
-    async def public_endpoint(self) -> str:
+    async def public_endpoint(self, request: Request) -> str:
         return "This is a public endpoint"

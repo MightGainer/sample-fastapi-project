@@ -1,8 +1,7 @@
 {
     "app_name": "FastAPI Sample Project (Development)",
     "debug": true,
-    "database_url": "sqlite+aiosqlite:///./dev.db",
-    "secret_key": "dev_secret_key",
+    "database_url": "sqlite+aiosqlite:///dev.db",
     "algorithm": "HS256",
     "access_token_expire_minutes": 30
 }

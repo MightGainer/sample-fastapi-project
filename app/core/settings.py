@@ -1,8 +1,9 @@
-import os
 import json
+import os
+
+from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -18,7 +19,7 @@ class Settings(BaseSettings):
 
 def load_settings() -> Settings:
     env = os.getenv("ENV", "development")
-    settings_file = os.path.join("config", f"{env}.appsettings.json")
+    settings_file = os.path.join("settings", f"{env}.appsettings.json")
 
     if os.path.exists(settings_file):
         with open(settings_file, "r") as file:
@@ -26,3 +27,6 @@ def load_settings() -> Settings:
         return Settings(**settings_data)
 
     return Settings()
+
+
+settings: Settings = load_settings()
