@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.infrastructure.security.password_manager import IPasswordManager
+
 from .base import Base
 
 
@@ -17,12 +19,15 @@ class UserEntity(Base):
             self, 
             username: str, 
             email: str, 
-            password: str, 
+            password: str,
+            password_manager: IPasswordManager,
             is_active: bool = True, 
-            is_superuser=False
+            is_superuser: bool=False,
         ) -> None:
         super().__init__()
         self.username = username
         self.email = email
         self.is_active = is_active
         self.is_superuser = is_superuser
+        self.password_manager = password_manager
+        self.hashed_password = self.password_manager.hash_password(password=password)

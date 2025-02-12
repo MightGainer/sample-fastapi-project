@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from app.infrastructure.models.user import UserEntity
+from app.infrastructure.security.password_manager import IPasswordManager
 
 
 class UserBase(BaseModel):
@@ -11,13 +12,14 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
-    def to_entity(self) -> UserEntity:
+    def to_entity(self, password_manager: IPasswordManager) -> UserEntity:
         return UserEntity(
             email=self.email,
             password=self.password,
             username=self.username,
             is_active=True,
             is_superuser=False,
+            password_manager=password_manager,
         )
 
 
@@ -34,10 +36,3 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
-
-    def __init__(self, user: UserEntity) -> None:
-        self.id = user.id
-        self.is_active = user.is_active
-        self.is_superuser = user.is_superuser
-        self.email = user.email
-        self.username = user.username
