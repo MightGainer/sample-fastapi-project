@@ -14,25 +14,18 @@ class DbContextFactory:
 
     @asynccontextmanager
     async def create_db_context(
-        self, isolation_level=IsolationLevel.READ_UNCOMMITTED
+        self, isolation_level=IsolationLevel.READ_COMMITTED, autosave: bool = False
     ) -> AsyncGenerator[DbContext, None]:
-        logging.info(
-            f"STANDARD SESSION CREATED. Isolation level: {isolation_level.value}"
-        )
+        logging.info(f"STANDARD SESSION CREATED. Isolation level: {isolation_level.value}")
 
-        new_engine = self.engine.execution_options(
-            isolation_level=isolation_level.value
-        )
+        new_engine = self.engine.execution_options(isolation_level=isolation_level.value)
 
-        async_session_maker = async_sessionmaker(
-            bind=new_engine, expire_on_commit=False, autocommit=False
-        )
+        async_session_maker = async_sessionmaker(bind=new_engine, expire_on_commit=False, autocommit=False)
         async_session = async_session_maker()
-        db_context = DbContext(async_session)
+        db_context = DbContext(async_session, autosave=autosave)
         try:
             await db_context.__aenter__()
             yield db_context
-            await db_context.save()
         except Exception as ex:
             await db_context.__aexit__(type(ex), ex, ex.__traceback__)
             raise

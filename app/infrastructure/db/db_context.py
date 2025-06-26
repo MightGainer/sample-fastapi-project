@@ -7,11 +7,11 @@ from app.infrastructure.models.user import UserEntity
 
 
 class DbContext:
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, autosave: bool = False) -> None:
         self.session = session
 
         # entities
-        self.users = DbSet(UserEntity, session)
+        self.users = DbSet(UserEntity, session, autosave=autosave)
 
     async def __aenter__(self) -> Self:
         self._transaction = await self.session.begin()
